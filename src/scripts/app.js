@@ -21,6 +21,11 @@ define(["TFS/WorkItemTracking/Services", "TFS/WorkItemTracking/RestClient", "TFS
             return url;
         }
 
+        function replaceToken(value, wit) {
+            var fixedValue = value.replace("@ID", wit['System.Id']).replace("@WIT", wit['System.WorkItemType']);
+            return fixedValue
+        }
+
         function getTemplates() {
             return VSS.getAccessToken()
                 .then(function (response) {
@@ -70,10 +75,10 @@ define(["TFS/WorkItemTracking/Services", "TFS/WorkItemTracking/RestClient", "TFS
         function createTask(witClient, service, WIT, taskTemplate, teamSettings) {
 
             var task = [];
-
+            
             for (var key in taskTemplate.fields) {
                 if (IsPropertyValid(taskTemplate, key)) {
-                    task.push({ "op": "add", "path": "/fields/" + key, "value": taskTemplate.fields[key] })
+                    task.push({ "op": "add", "path": "/fields/" + key, "value": replaceToken(taskTemplate.fields[key],WIT) })
                 }
             }
 
